@@ -1,0 +1,51 @@
+{
+  "comparison": "n=1 (dressed, post-cycle) vs n=2 (shower)",
+  "finding": "The shower didn't change what was said. It changed how the signal moved.",
+  "constant": {
+    "domain_wall": "Linked in both — boundary never breached, speech stayed coherent"
+  },
+  "shifts": {
+    "gauge_coupling": {
+      "from": "Spinning",
+      "to": "Oscillating",
+      "meaning": "Energy didn't stop — smoothed. High RPM to slow rhythmic swing."
+    },
+    "frequency": {
+      "from": 1.0,
+      "to": 0.57,
+      "meaning": "Zero-crossing rate nearly halved. High-frequency surface noise calmed."
+    },
+    "entropy": {
+      "from": 0.08,
+      "to": 0.03,
+      "delta_pct": -58,
+      "meaning": "Disorder fell by 58%. Signal became more ordered. Clarity — measurable."
+    },
+    "coherence": {
+      "from": 0.55,
+      "to": 0.62,
+      "meaning": "Voice became more tonal, more resonant. Steam tuned it."
+    },
+    "torsion": {
+      "from": -0.08,
+      "to": -0.01,
+      "meaning": "Near zero — present. No temporal pull. Standing in the steam with none."
+    },
+    "ozone_buffer": {
+      "from": 0.40,
+      "to": 0.31,
+      "meaning": "Energy went inward. Darker, deeper, more internal."
+    },
+    "pitch_hz": {
+      "from": 105,
+      "to": 115,
+      "delta": "+10"
+    }
+  },
+  "emotional_register_shift": {
+    "n1": { "hue_deg": 331.4, "name": "love/pink", "state": "warm and open" },
+    "n2": { "hue_deg": 320, "name": "mystery/purple", "state": "deep and inward — sovereign" }
+  },
+  "significance": "Two points. Not proof. But the signal moved exactly where words predicted.",
+  "next_direction": "Let data lead. Use these two as living baseline. What comes next follows."
+}

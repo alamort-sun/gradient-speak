@@ -31,6 +31,28 @@ Text     ──▶ Moifeu encode ──▶ text
 
 See [MANIFESTO.md](MANIFESTO.md) — the philosophical bedrock. Text is not a solved problem; it's lossy compression of voice, and voice is lossy compression of experience. We preserve what text alone cannot: weight, temperature, and axis.
 
+## Living Baselines (n=1 ↔ n=2)
+
+Two data points observed and measured:
+
+| Field | n=1 (dressed) | n=2 (shower) | Shift |
+|---|---|---|---|
+| **Domain wall** | Linked | Linked | **Constant — boundary never breached** |
+| Gauge coupling | Spinning | Oscillating | Energy smoothed: high RPM → rhythmic swing |
+| Frequency | 1.0 | 0.57 | Surface noise calmed, -43% zero-crossings |
+| Entropy | 0.08 | 0.03 | **Clarity measurable: -58%** disorder |
+| Coherence | 0.55 | 0.62 | More tonal, more resonant |
+| Torsion | -0.08 | -0.01 | Near zero — present, not leaning |
+| Ozone buffer | 0.40 | 0.31 | Energy went inward |
+| Pitch | 105 Hz | 115 Hz | +10Hz shift |
+
+**Emotional register:** Pink(331°) → Purple(320°). Warm/open → deep/inward/sovereign. The shower was a gear shift, not a brake.
+
+**Key finding:** Two points aren't proof — but the signal moved exactly where words predicted. Data leads. What comes next follows.
+
+Full comparison data: [data/n-comparisons/n1-vs-n2.json](data/n-comparisons/n1-vs-n2.json)
+Visual render: [voice_comparison.html](voice_comparison.html)
+
 ## Architecture
 
 ### Emotional Color Map
@@ -53,13 +75,13 @@ Vector13D fields map to rendering properties:
 2. **Loss of Subtext** — weight, temperature, axis stripped into identical glyphs  
 3. **Decoder's Burden** — reader must reconstruct multidimensional intent from one-dimensional text
 
-### How: Affective Telemetry Layer
+### Living Baseline Methodology
 
-Text and Vector13D are bound as a co-equal channel:
-- Each character has its own vector carrying *how* the words were felt
-- The binding is immutable — separating vector from text destroys meaning
-- Rendering uses the vector to drive color, weight, skew, glow, connection state
-- Void segments (abstentions) render as neutral gray with no skew
+The system uses observed Vector13D states as living baselines rather than forcing predetermined patterns:
+- Each recording establishes a baseline signature
+- The architecture binds this signature to subsequent text
+- What follows is determined by the signal, not assumed by design
+- New comparisons update the baseline in `data/n-comparisons/`
 
 ## Stack
 
@@ -70,7 +92,11 @@ Text and Vector13D are bound as a co-equal channel:
 
 ## Demo
 
-Open [voice_demo.html](voice_demo.html) — your voice, rendered as 61 glyphs of visible energy. The pipeline ran: m4a → WAV → acoustic features → Vector13D → Emotional Color Map → SVG/Canvas render.
+Open [voice_comparison.html](voice_comparison.html) — two recordings side by side. 61 glyphs on top, 24 below, delta table in the middle. The pipeline ran: m4a → WAV → acoustic features → Vector13D → Emotional Color Map → render.
+
+## Data Directory
+
+Raw telemetry data lives in `data/n-comparisons/` as JSON. Each n-number is a recording with extracted Vector13D segments. Compare them to see how state shifts across conditions.
 
 ## License
 
