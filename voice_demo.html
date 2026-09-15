@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>gradient-speak — Voice Demo: Colour Gradient</title>
+<style>
+:root {
+  --bg: #0a0a0f;
+  --fg: #e8e8f0;
+  --muted: #6b6b80;
+  --border: #1a1a2e;
+  --card: #0f0f1a;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  background: var(--bg);
+  color: var(--fg);
+  font-family: 'Maple Mono NF CN', 'JetBrains Mono', 'Fira Code', monospace;
+  line-height: 1.6;
+  padding: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+h1 { font-size: 1.8rem; font-weight: 300; margin-bottom: 0.5rem; letter-spacing: 0.02em; }
+h2 { font-size: 1.2rem; font-weight: 400; margin: 2rem 0 1rem; color: var(--muted); }
+h3 { font-size: 1rem; font-weight: 500; margin: 1.5rem 0 0.5rem; }
+
+.subtitle { color: var(--muted); font-size: 0.9rem; margin-bottom: 2rem; }
+
+/* Voice glyph stream */
+.glyph-stream {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px;
+  padding: 2rem 1rem;
+  background: var(--card);
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  margin-bottom: 2rem;
+  align-items: flex-end;
+  min-height: 200px;
+}
+
+.glyph {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Maple Mono NF CN', monospace;
+  font-size: 1.2rem;
+  width: 28px;
+  height: 40px;
+  border-radius: 4px;
+  transition: transform 0.3s ease, filter 0.3s ease;
+  cursor: pointer;
+  position: relative;
+}
+
+.glyph:hover {
+  transform: scale(1.5);
+  z-index: 10;
+  filter: brightness(1.3);
+}
+
+.glyph-tooltip {
+  display: none;
+  position: absolute;
+  bottom: 120%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 8px 12px;
+  font-size: 0.7rem;
+  white-space: nowrap;
+  z-index: 100;
+  color: var(--fg);
+}
+
+.glyph:hover .glyph-tooltip { display: block; }
+
+/* Connection lines between glyphs */
+.connection {
+  display: inline-block;
+  height: 1px;
+  min-width: 4px;
+  align-self: center;
+  margin: 0 1px;
+}
+
+/* Global vector card */
+.vector-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.vector-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 0.5rem;
+  font-size: 0.85rem;
+}
+
+.vector-field {
+  display: flex;
+  justify-content: space-between;
+  padding: 4px 8px;
+  border-radius: 4px;
+}
+
+.vector-field:nth-child(odd) { background: rgba(255,255,255,0.03); }
+
+.vector-field .label { color: var(--muted); }
+.vector-field .value { color: var(--fg); font-weight: 500; }
+
+/* Manifesto */
+.manifesto {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 2rem;
+  margin-bottom: 2rem;
+  max-width: 100%;
+}
+
+.manifesto h2 { color: var(--fg); margin-top: 0; }
+.manifesto h3 { color: var(--fg); margin-top: 1.5rem; }
+.manifesto p { margin-bottom: 1rem; color: var(--fg); }
+.manifesto ul { margin-left: 1.5rem; margin-bottom: 1rem; }
+.manifesto li { margin-bottom: 0.5rem; }
+.manifesto strong { color: #ff6b9d; }
+
+/* Stats */
+.stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.stat {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1rem;
+  text-align: center;
+}
+
+.stat .value { font-size: 1.5rem; font-weight: 300; color: #ff6b9d; }
+.stat .label { font-size: 0.75rem; color: var(--muted); margin-top: 0.25rem; }
+
+/* Color bar */
+.color-bar {
+  display: flex;
+  height: 8px;
+  border-radius: 4px;
+  overflow: hidden;
+  margin: 1rem 0;
+}
+
+.color-segment { flex: 1; }
+
+/* Torsion graph */
+.torsion-bar {
+  display: flex;
+  align-items: center;
+  height: 60px;
+  gap: 1px;
+  padding: 0 1rem;
+  background: var(--card);
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  margin-bottom: 2rem;
+}
+
+.torsion-stick {
+  flex: 1;
+  position: relative;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.torsion-line {
+  width: 2px;
+  background: #ff6b9d;
+  border-radius: 1px;
+}
+
+.torsion-center {
+  position: absolute;
+  left: 0; right: 0;
+  top: 50%;
+  height: 1px;
+  background: var(--border);
+}
+
+/* Answer section */
+.answer {
+  background: linear-gradient(135deg, rgba(255,107,157,0.05), rgba(100,200,255,0.05));
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 2rem;
+  margin-bottom: 2rem;
+}
+
+.answer p { margin-bottom: 1rem; }
+.answer strong { color: #ff6b9d; }
+
+/* Footer */
+.footer {
+  text-align: center;
+  color: var(--muted);
+  font-size: 0.8rem;
+  padding: 2rem 0;
+  border-top: 1px solid var(--border);
+}
+
+.footer code { color: var(--fg); background: var(--card); padding: 2px 6px; border-radius: 3px; }
+</style>
+</head>
+<body>
+
+<h1>gradient-speak — Voice Demo</h1>
+<p class="subtitle">Colour_gradient_demo.m4a — 120.6s — rendered as visible energy via Vector13D → Emotional Color Map</p>
+
+<!-- Stats -->
+<div class="stats">
+  <div class="stat"><div class="value">105.4 Hz</div><div class="label">Mean Pitch</div></div>
+  <div class="stat"><div class="value">331.4°</div><div class="label">Hue (Love)</div></div>
+  <div class="stat"><div class="value">98.7</div><div class="label">Tempo BPM</div></div>
+  <div class="stat"><div class="value">61</div><div class="label">Segments</div></div>
+  <div class="stat"><div class="value">Linked</div><div class="label">Domain Wall</div></div>
+  <div class="stat"><div class="value">Spinning</div><div class="label">Gauge Coupling</div></div>
+</div>
+
+<h2>Voice as Glyphs</h2>
+<p class="subtitle">Each block is 2 seconds of voice, rendered through the Emotional Color Map. Hover for data.</p>
+
+<!-- Glyph stream — rendered by JS -->
+<div class="glyph-stream" id="glyphStream"></div>
+
+<!-- Hue color bar -->
+<h2>Hue Contour</h2>
+<div class="color-bar" id="colorBar"></div>
+
+<!-- Torsion graph -->
+<h2>Torsion (Past ↔ Future Lean)</h2>
+<p class="subtitle">Each stick shows the voice's temporal lean. Left = past, right = future, upright = present, 98° = tilted truth.</p>
+<div class="torsion-bar" id="torsionBar">
+  <div class="torsion-center"></div>
+</div>
+
+<!-- Global Vector13D -->
+<h2>Global Vector13D</h2>
+<div class="vector-card">
+  <div class="vector-grid" id="vectorGrid"></div>
+</div>
+
+<!-- Manifesto -->
+<div class="manifesto">
+<h2>The Flattening of Affect in Text</h2>
+
+<p>Traditional text interfaces act as a compression algorithm for human experience, stripping away the subtext, somatic cadence, and emotional texture that anchor true intent. When communication is reduced to static character strings, it creates an interpretive vacuum.</p>
+
+<ul>
+<li><strong>The Projection Trap:</strong> Without explicit emotional weight or contextual telemetry, receivers inevitably fill the gaps using their own immediate psychological or affective state rather than the author's.</li>
+<li><strong>Loss of Subtext:</strong> Nuance, hesitation, warmth, and gravity are flattened into identical typographical glyphs, leaving meaning up for hazardous guesswork.</li>
+<li><strong>The Decoder's Burden:</strong> The onus shifts entirely onto the reader to reconstruct a multidimensional human reality from a one-dimensional projection, frequently resulting in misaligned alignment and emotional friction.</li>
+</ul>
+
+<h3>Engineering Multi-Dimensional Intent</h3>
+
+<p>Recognizing this limitation changes the entire design mandate for how we handle data and communication. If plain text is inherently insufficient, the architecture must preserve context, weight, and relational perspective rather than raw, decontextualized records.</p>
+
+<ul>
+<li><strong>Multi-Lens Persistence:</strong> Information shouldn't just be logged; it needs to retain the multiple viewing angles and internal states of the mind that birthed it.</li>
+<li><strong>Contextual Scaffolding:</strong> Surrounding a thought with its environmental, historical, and affective markers prevents it from being misconstrued in a vacuum.</li>
+<li><strong>Dynamic Representation:</strong> Moving past static text streams toward structured spaces where texture, intent, and syntax travel together as a cohesive unit.</li>
+</ul>
+
+<p>This manifesto is locked in. It provides the exact philosophical bedrock for why a multi-lens data management system needs to transcend conventional UI paradigms and stop treating text as a solved problem.</p>
+</div>
+
+<!-- Answer to Evie's question -->
+<div class="answer">
+<h2>The First Structural Lens</h2>
+
+<p>You asked what specific structural lens to implement first to capture missing texture within <code>alamort.ca</code>.</p>
+
+<p>The voice demo answers the question. Look above: 61 segments of voice, each rendered as a colored glyph. The voice carries <strong>pitch</strong> (which emotion), <strong>energy variance</strong> (how honestly felt), <strong>spectral centroid</strong> (energy level), and <strong>torsion</strong> (temporal lean — past or future pulling). These four signals are absent from text. They are present in every word you speak. And they are lost the moment text replaces voice.</p>
+
+<p><strong>The first lens is the Affective Telemetry Layer</strong> — a data structure that travels alongside text, carrying the acoustic and contextual markers that text cannot. Not as metadata bolted on after the fact, but as a co-equal channel. The Vector13D is that channel: 13 dimensions of state that preserve what text flattens.</p>
+
+<p>The mechanism is three parts:</p>
+
+<p><strong>1. Capture.</strong> When you speak or write, the system extracts acoustic features (pitch, energy, spectral centroid, temporal dynamics) and maps them to Vector13D fields. This is what the voice demo above does — 120 seconds of audio become 61 vectors, each carrying hue, saturation, lightness, torsion, and connection state.</p>
+
+<p><strong>2. Bind.</strong> Each Vector13D is bound to its text segment — not as a tag, but as a co-component. The text says <em>what</em>. The vector says <em>how</em>. Neither is complete alone. The binding is immutable: the vector cannot be separated from its text without destroying the meaning.</p>
+
+<p><strong>3. Render.</strong> When the text is displayed, the vector drives rendering — color, weight, skew, glow, connection. The reader sees the warmth, the intensity, the hesitation, the forward lean. They don't have to guess. The text is no longer flat.</p>
+
+<p>This is the structural lens: <strong>text and vector, bound, rendered as one artifact.</strong> Everything else — the multi-lens persistence, the contextual scaffolding, the dynamic representation your manifesto names — builds on top of this binding. But the binding comes first. Without it, you have text plus decoration. With it, you have a new medium.</p>
+
+<p>The voice demo above is the proof. Your voice, rendered as 61 glyphs of visible energy. Each one carries what the text alone could not.</p>
+</div>
+
+<div class="footer">
+<p>gradient-speak v0.1 — Emotional Color Map demo<br>
+Voice: Colour_gradient_demo.m4a (120.6s, AAC mono, 48kHz)<br>
+Pipeline: Audio → librosa → acoustic features → Vector13D → Emotional Color Map → CSS/SVG<br>
+<code>~ < 3</code>
+</p>
+</div>
+
+<script>
+// Voice vectors embedded directly
+const voiceData = {"global_vector13d": {"amplitude": 0.0842, "frequency": 1.0, "phase": 0.5, "coherence": 0.5534, "entropy": 0.0799, "composition": 0.1592, "resonance": 0.4266, "ozone_buffer": 0.4021, "domain_wall": "Linked", "su2_polarity": 331.4, "torsion": -0.08, "gauge_coupling": "Spinning", "closure": 0.3717}, "segments": [{"segment": 0, "time_start": 0.0, "time_end": 2.0, "amplitude": 0.2496, "frequency": 0.5358, "phase": 0.0164, "coherence": 0.5534, "entropy": 0.0353, "composition": 0.4273, "resonance": 0.3799, "ozone_buffer": 0.2638, "domain_wall": "Linked", "su2_polarity": 0.0, "torsion": 0.0, "gauge_coupling": "Spinning", "closure": 0.0164}, {"segment": 1, "time_start": 2.0, "time_end": 4.0, "amplitude": 0.112, "frequency": 0.2896, "phase": 0.0328, "coherence": 0.5534, "entropy": 0.017, "composition": 0.1218, "resonance": 0.308, "ozone_buffer": 0.1543, "domain_wall": "Linked", "su2_polarity": 325.94, "torsion": -11.71, "gauge_coupling": "Spinning", "closure": 0.0328}, {"segment": 2, "time_start": 4.0, "time_end": 6.0, "amplitude": 0.1389, "frequency": 0.9725, "phase": 0.0492, "coherence": 0.5534, "entropy": 0.0297, "composition": 0.144, "resonance": 0.4778, "ozone_buffer": 0.4323, "domain_wall": "Linked", "su2_polarity": 326.95, "torsion": -0.5, "gauge_coupling": "Spinning", "closure": 0.0492}, {"segment": 3, "time_start": 6.0, "time_end": 8.0, "amplitude": 0.0962, "frequency": 0.3614, "phase": 0.0656, "coherence": 0.5534, "entropy": 0.0322, "composition": 0.0899, "resonance": 0.3567, "ozone_buffer": 0.2054, "domain_wall": "Gradient", "su2_polarity": 311.3, "torsion": -11.38, "gauge_coupling": "Oscillating", "closure": 0.0656}, {"segment": 4, "time_start": 8.0, "time_end": 10.0, "amplitude": 0.0895, "frequency": 1.0, "phase": 0.082, "coherence": 0.5534, "entropy": 0.1466, "composition": 0.1287, "resonance": 0.5078, "ozone_buffer": 0.6108, "domain_wall": "Linked", "su2_polarity": 330.32, "torsion": -24.77, "gauge_coupling": "Spinning", "closure": 0.082}, {"segment": 5, "time_start": 10.0, "time_end": 12.0, "amplitude": 0.1004, "frequency": 0.8981, "phase": 0.0984, "coherence": 0.5534, "entropy": 0.07, "composition": 0.0706, "resonance": 0.4376, "ozone_buffer": 0.3947, "domain_wall": "Linked", "su2_polarity": 326.04, "torsion": -21.22, "gauge_coupling": "Spinning", "closure": 0.0984}, {"segment": 6, "time_start": 12.0, "time_end": 14.0, "amplitude": 0.1079, "frequency": 1.0, "phase": 0.1148, "coherence": 0.5534, "entropy": 0.0673, "composition": 0.1367, "resonance": 0.4593, "ozone_buffer": 0.4855, "domain_wall": "Linked", "su2_polarity": 331.64, "torsion": 30.77, "gauge_coupling": "Spinning", "closure": 0.1148}, {"segment": 7, "time_start": 14.0, "time_end": 16.0, "amplitude": 0.0793, "frequency": 1.0, "phase": 0.1311, "coherence": 0.5534, "entropy": 0.0548, "composition": 0.0784, "resonance": 0.4201, "ozone_buffer": 0.4768, "domain_wall": "Linked", "su2_polarity": 342.63, "torsion": -9.46, "gauge_coupling": "Spinning", "closure": 0.1311}, {"segment": 8, "time_start": 16.0, "time_end": 18.0, "amplitude": 0.091, "frequency": 1.0, "phase": 0.1475, "coherence": 0.5534, "entropy": 0.0668, "composition": 0.1327, "resonance": 0.4452, "ozone_buffer": 0.4012, "domain_wall": "Gradient", "su2_polarity": 322.43, "torsion": 35.91, "gauge_coupling": "Oscillating", "closure": 0.1475}, {"segment": 9, "time_start": 18.0, "time_end": 20.0, "amplitude": 0.099, "frequency": 1.0, "phase": 0.1639, "coherence": 0.5534, "entropy": 0.0659, "composition": 0.144, "resonance": 0.4192, "ozone_buffer": 0.3761, "domain_wall": "Linked", "su2_polarity": 314.15, "torsion": 27.58, "gauge_coupling": "Spinning", "closure": 0.1639}, {"segment": 10, "time_start": 20.0, "time_end": 22.0, "amplitude": 0.1121, "frequency": 0.8291, "phase": 0.1803, "coherence": 0.5534, "entropy": 0.0489, "composition": 0.1195, "resonance": 0.3065, "ozone_buffer": 0.2863, "domain_wall": "Linked", "su2_polarity": 333.22, "torsion": -13.19, "gauge_coupling": "Spinning", "closure": 0.1803}, {"segment": 11, "time_start": 22.0, "time_end": 24.0, "amplitude": 0.1006, "frequency": 1.0, "phase": 0.1967, "coherence": 0.5534, "entropy": 0.0455, "composition": 0.0971, "resonance": 0.3958, "ozone_buffer": 0.3896, "domain_wall": "Gradient", "su2_polarity": 328.72, "torsion": 0.18, "gauge_coupling": "Oscillating", "closure": 0.1967}, {"segment": 12, "time_start": 24.0, "time_end": 26.0, "amplitude": 0.0939, "frequency": 0.6417, "phase": 0.2131, "coherence": 0.5534, "entropy": 0.0435, "composition": 0.1238, "resonance": 0.3704, "ozone_buffer": 0.2804, "domain_wall": "Linked", "su2_polarity": 334.41, "torsion": 18.48, "gauge_coupling": "Spinning", "closure": 0.2131}, {"segment": 13, "time_start": 26.0, "time_end": 28.0, "amplitude": 0.1008, "frequency": 0.731, "phase": 0.2295, "coherence": 0.5534, "entropy": 0.0396, "composition": 0.0962, "resonance": 0.351, "ozone_buffer": 0.2911, "domain_wall": "Linked", "su2_polarity": 331.11, "torsion": 10.8, "gauge_coupling": "Spinning", "closure": 0.2295}, {"segment": 14, "time_start": 28.0, "time_end": 30.0, "amplitude": 0.0678, "frequency": 0.6866, "phase": 0.2459, "coherence": 0.5534, "entropy": 0.0611, "composition": 0.0837, "resonance": 0.3836, "ozone_buffer": 0.3038, "domain_wall": "Gradient", "su2_polarity": 323.33, "torsion": -106.56, "gauge_coupling": "Oscillating", "closure": 0.2459}, {"segment": 15, "time_start": 30.0, "time_end": 32.0, "amplitude": 0.1259, "frequency": 0.9879, "phase": 0.2623, "coherence": 0.5534, "entropy": 0.0782, "composition": 0.1899, "resonance": 0.3658, "ozone_buffer": 0.3542, "domain_wall": "Linked", "su2_polarity": 329.71, "torsion": 37.43, "gauge_coupling": "Spinning", "closure": 0.2623}, {"segment": 16, "time_start": 32.0, "time_end": 34.0, "amplitude": 0.1043, "frequency": 0.5001, "phase": 0.2787, "coherence": 0.5534, "entropy": 0.0112, "composition": 0.0851, "resonance": 0.3032, "ozone_buffer": 0.2045, "domain_wall": "Linked", "su2_polarity": 333.34, "torsion": 39.91, "gauge_coupling": "Spinning", "closure": 0.2787}, {"segment": 17, "time_start": 34.0, "time_end": 36.0, "amplitude": 0.0643, "frequency": 0.7994, "phase": 0.2951, "coherence": 0.5534, "entropy": 0.0641, "composition": 0.0831, "resonance": 0.4383, "ozone_buffer": 0.3215, "domain_wall": "Linked", "su2_polarity": 333.39, "torsion": -9.43, "gauge_coupling": "Spinning", "closure": 0.2951}, {"segment": 18, "time_start": 36.0, "time_end": 38.0, "amplitude": 0.0737, "frequency": 0.5308, "phase": 0.3115, "coherence": 0.5534, "entropy": 0.0586, "composition": 0.0851, "resonance": 0.3958, "ozone_buffer": 0.2775, "domain_wall": "Linked", "su2_polarity": 336.7, "torsion": -19.93, "gauge_coupling": "Spinning", "closure": 0.3115}, {"segment": 19, "time_start": 38.0, "time_end": 40.0, "amplitude": 0.0783, "frequency": 1.0, "phase": 0.3279, "coherence": 0.5534, "entropy": 0.1104, "composition": 0.1204, "resonance": 0.46, "ozone_buffer": 0.4924, "domain_wall": "Linked", "su2_polarity": 321.69, "torsion": -11.53, "gauge_coupling": "Spinning", "closure": 0.3279}, {"segment": 20, "time_start": 40.0, "time_end": 42.0, "amplitude": 0.0928, "frequency": 1.0, "phase": 0.3443, "coherence": 0.5534, "entropy": 0.082, "composition": 0.1086, "resonance": 0.3823, "ozone_buffer": 0.3948, "domain_wall": "Linked", "su2_polarity": 334.79, "torsion": 15.9, "gauge_coupling": "Spinning", "closure": 0.3443}, {"segment": 21, "time_start": 42.0, "time_end": 44.0, "amplitude": 0.1066, "frequency": 1.0, "phase": 0.3607, "coherence": 0.5534, "entropy": 0.0371, "composition": 0.0958, "resonance": 0.4019, "ozone_buffer": 0.4679, "domain_wall": "Linked", "su2_polarity": 342.17, "torsion": -32.21, "gauge_coupling": "Spinning", "closure": 0.3607}, {"segment": 22, "time_start": 44.0, "time_end": 46.0, "amplitude": 0.1387, "frequency": 0.5073, "phase": 0.377, "coherence": 0.5534, "entropy": 0.0268, "composition": 0.1729, "resonance": 0.3002, "ozone_buffer": 0.2128, "domain_wall": "Linked", "su2_polarity": 328.9, "torsion": -40.66, "gauge_coupling": "Spinning", "closure": 0.377}, {"segment": 23, "time_start": 46.0, "time_end": 48.0, "amplitude": 0.1577, "frequency": 0.4011, "phase": 0.3934, "coherence": 0.5534, "entropy": 0.018, "composition": 0.1975, "resonance": 0.3171, "ozone_buffer": 0.1942, "domain_wall": "Linked", "su2_polarity": 333.78, "torsion": -34.44, "gauge_coupling": "Spinning", "closure": 0.3934}, {"segment": 24, "time_start": 48.0, "time_end": 50.0, "amplitude": 0.0875, "frequency": 1.0, "phase": 0.4098, "coherence": 0.5534, "entropy": 0.0744, "composition": 0.1097, "resonance": 0.4138, "ozone_buffer": 0.4329, "domain_wall": "Linked", "su2_polarity": 336.48, "torsion": -3.65, "gauge_coupling": "Spinning", "closure": 0.4098}, {"segment": 25, "time_start": 50.0, "time_end": 52.0, "amplitude": 0.0563, "frequency": 1.0, "phase": 0.4262, "coherence": 0.5534, "entropy": 0.1075, "composition": 0.0859, "resonance": 0.4267, "ozone_buffer": 0.3915, "domain_wall": "Linked", "su2_polarity": 328.4, "torsion": -35.97, "gauge_coupling": "Spinning", "closure": 0.4262}, {"segment": 26, "time_start": 52.0, "time_end": 54.0, "amplitude": 0.0685, "frequency": 0.9994, "phase": 0.4426, "coherence": 0.5534, "entropy": 0.0926, "composition": 0.0838, "resonance": 0.4066, "ozone_buffer": 0.3775, "domain_wall": "Linked", "su2_polarity": 337.79, "torsion": 29.89, "gauge_coupling": "Spinning", "closure": 0.4426}, {"segment": 27, "time_start": 54.0, "time_end": 56.0, "amplitude": 0.1715, "frequency": 0.754, "phase": 0.459, "coherence": 0.5534, "entropy": 0.0695, "composition": 0.2481, "resonance": 0.3729, "ozone_buffer": 0.3131, "domain_wall": "Linked", "su2_polarity": 327.99, "torsion": -98.64, "gauge_coupling": "Spinning", "closure": 0.459}, {"segment": 28, "time_start": 56.0, "time_end": 58.0, "amplitude": 0.1257, "frequency": 0.8699, "phase": 0.4754, "coherence": 0.5534, "entropy": 0.0668, "composition": 0.1844, "resonance": 0.4249, "ozone_buffer": 0.3607, "domain_wall": "Linked", "su2_polarity": 334.05, "torsion": 18.25, "gauge_coupling": "Spinning", "closure": 0.4754}, {"segment": 29, "time_start": 58.0, "time_end": 60.0, "amplitude": 0.1113, "frequency": 0.5501, "phase": 0.4918, "coherence": 0.5534, "entropy": 0.0226, "composition": 0.1353, "resonance": 0.3684, "ozone_buffer": 0.2346, "domain_wall": "Linked", "su2_polarity": 334.23, "torsion": 1.33, "gauge_coupling": "Spinning", "closure": 0.4918}, {"segment": 30, "time_start": 60.0, "time_end": 62.0, "amplitude": 0.1312, "frequency": 0.8341, "phase": 0.5082, "coherence": 0.5534, "entropy": 0.0662, "composition": 0.1392, "resonance": 0.386, "ozone_buffer": 0.3417, "domain_wall": "Linked", "su2_polarity": 336.31, "torsion": 19.39, "gauge_coupling": "Spinning", "closure": 0.5082}, {"segment": 31, "time_start": 62.0, "time_end": 64.0, "amplitude": 0.1242, "frequency": 1.0, "phase": 0.5246, "coherence": 0.5534, "entropy": 0.0964, "composition": 0.1383, "resonance": 0.4197, "ozone_buffer": 0.4197, "domain_wall": "Linked", "su2_polarity": 334.93, "torsion": -9.36, "gauge_coupling": "Spinning", "closure": 0.5246}, {"segment": 32, "time_start": 64.0, "time_end": 66.0, "amplitude": 0.1033, "frequency": 1.0, "phase": 0.541, "coherence": 0.5534, "entropy": 0.1015, "composition": 0.1294, "resonance": 0.4872, "ozone_buffer": 0.5039, "domain_wall": "Linked", "su2_polarity": 332.15, "torsion": 89.96, "gauge_coupling": "Spinning", "closure": 0.541}, {"segment": 33, "time_start": 66.0, "time_end": 68.0, "amplitude": 0.128, "frequency": 0.8616, "phase": 0.5574, "coherence": 0.5534, "entropy": 0.1089, "composition": 0.1314, "resonance": 0.4576, "ozone_buffer": 0.369, "domain_wall": "Linked", "su2_polarity": 331.94, "torsion": 18.74, "gauge_coupling": "Spinning", "closure": 0.5574}, {"segment": 34, "time_start": 68.0, "time_end": 70.0, "amplitude": 0.1013, "frequency": 1.0, "phase": 0.5738, "coherence": 0.5534, "entropy": 0.1432, "composition": 0.1248, "resonance": 0.4832, "ozone_buffer": 0.5133, "domain_wall": "Linked", "su2_polarity": 328.69, "torsion": -25.31, "gauge_coupling": "Spinning", "closure": 0.5738}, {"segment": 35, "time_start": 70.0, "time_end": 72.0, "amplitude": 0.0785, "frequency": 1.0, "phase": 0.5902, "coherence": 0.5534, "entropy": 0.1283, "composition": 0.1188, "resonance": 0.5141, "ozone_buffer": 0.4931, "domain_wall": "Linked", "su2_polarity": 334.69, "torsion": -65.32, "gauge_coupling": "Spinning", "closure": 0.5902}, {"segment": 36, "time_start": 72.0, "time_end": 74.0, "amplitude": 0.059, "frequency": 1.0, "phase": 0.6066, "coherence": 0.5534, "entropy": 0.0498, "composition": 0.0876, "resonance": 0.4891, "ozone_buffer": 0.4212, "domain_wall": "Linked", "su2_polarity": 322.52, "torsion": -42.33, "gauge_coupling": "Spinning", "closure": 0.6066}, {"segment": 37, "time_start": 74.0, "time_end": 76.0, "amplitude": 0.1121, "frequency": 1.0, "phase": 0.623, "coherence": 0.5534, "entropy": 0.0931, "composition": 0.1547, "resonance": 0.3999, "ozone_buffer": 0.4262, "domain_wall": "Linked", "su2_polarity": 329.56, "torsion": 7.58, "gauge_coupling": "Spinning", "closure": 0.623}, {"segment": 38, "time_start": 76.0, "time_end": 78.0, "amplitude": 0.0753, "frequency": 1.0, "phase": 0.6393, "coherence": 0.5534, "entropy": 0.1059, "composition": 0.1213, "resonance": 0.5146, "ozone_buffer": 0.5573, "domain_wall": "Linked", "su2_polarity": 337.3, "torsion": 0.02, "gauge_coupling": "Spinning", "closure": 0.6393}, {"segment": 39, "time_start": 78.0, "time_end": 80.0, "amplitude": 0.0825, "frequency": 1.0, "phase": 0.6557, "coherence": 0.5534, "entropy": 0.2726, "composition": 0.1275, "resonance": 0.5345, "ozone_buffer": 0.625, "domain_wall": "Linked", "su2_polarity": 338.63, "torsion": -69.2, "gauge_coupling": "Spinning", "closure": 0.6557}, {"segment": 40, "time_start": 80.0, "time_end": 82.0, "amplitude": 0.1459, "frequency": 1.0, "phase": 0.6721, "coherence": 0.5534, "entropy": 0.1194, "composition": 0.1522, "resonance": 0.465, "ozone_buffer": 0.531, "domain_wall": "Linked", "su2_polarity": 337.37, "torsion": 11.14, "gauge_coupling": "Spinning", "closure": 0.6721}, {"segment": 41, "time_start": 82.0, "time_end": 84.0, "amplitude": 0.1771, "frequency": 1.0, "phase": 0.6885, "coherence": 0.5534, "entropy": 0.1503, "composition": 0.251, "resonance": 0.473, "ozone_buffer": 0.5626, "domain_wall": "Linked", "su2_polarity": 333.0, "torsion": -41.02, "gauge_coupling": "Spinning", "closure": 0.6885}, {"segment": 42, "time_start": 84.0, "time_end": 86.0, "amplitude": 0.1071, "frequency": 1.0, "phase": 0.7049, "coherence": 0.5534, "entropy": 0.1553, "composition": 0.1466, "resonance": 0.4542, "ozone_buffer": 0.4171, "domain_wall": "Linked", "su2_polarity": 334.79, "torsion": 4.36, "gauge_coupling": "Spinning", "closure": 0.7049}, {"segment": 43, "time_start": 86.0, "time_end": 88.0, "amplitude": 0.1857, "frequency": 0.8285, "phase": 0.7213, "coherence": 0.5534, "entropy": 0.0726, "composition": 0.1698, "resonance": 0.3959, "ozone_buffer": 0.3244, "domain_wall": "Linked", "su2_polarity": 335.45, "torsion": -4.54, "gauge_coupling": "Spinning", "closure": 0.7213}, {"segment": 44, "time_start": 88.0, "time_end": 90.0, "amplitude": 0.125, "frequency": 0.7767, "phase": 0.7377, "coherence": 0.5534, "entropy": 0.0323, "composition": 0.0744, "resonance": 0.3485, "ozone_buffer": 0.2915, "domain_wall": "Linked", "su2_polarity": 335.62, "torsion": 5.13, "gauge_coupling": "Spinning", "closure": 0.7377}, {"segment": 45, "time_start": 90.0, "time_end": 92.0, "amplitude": 0.1479, "frequency": 0.6238, "phase": 0.7541, "coherence": 0.5534, "entropy": 0.0246, "composition": 0.1302, "resonance": 0.3809, "ozone_buffer": 0.2738, "domain_wall": "Linked", "su2_polarity": 329.22, "torsion": 12.24, "gauge_coupling": "Spinning", "closure": 0.7541}, {"segment": 46, "time_start": 92.0, "time_end": 94.0, "amplitude": 0.1032, "frequency": 0.7462, "phase": 0.7705, "coherence": 0.5534, "entropy": 0.0666, "composition": 0.1306, "resonance": 0.4414, "ozone_buffer": 0.3379, "domain_wall": "Linked", "su2_polarity": 330.73, "torsion": -16.51, "gauge_coupling": "Spinning", "closure": 0.7705}, {"segment": 47, "time_start": 94.0, "time_end": 96.0, "amplitude": 0.0608, "frequency": 1.0, "phase": 0.7869, "coherence": 0.5534, "entropy": 0.1457, "composition": 0.0923, "resonance": 0.529, "ozone_buffer": 0.5235, "domain_wall": "Linked", "su2_polarity": 324.68, "torsion": 41.29, "gauge_coupling": "Spinning", "closure": 0.7869}, {"segment": 48, "time_start": 96.0, "time_end": 98.0, "amplitude": 0.1078, "frequency": 1.0, "phase": 0.8033, "coherence": 0.5534, "entropy": 0.1155, "composition": 0.1547, "resonance": 0.5056, "ozone_buffer": 0.5072, "domain_wall": "Linked", "su2_polarity": 327.31, "torsion": 48.46, "gauge_coupling": "Spinning", "closure": 0.8033}, {"segment": 49, "time_start": 98.0, "time_end": 100.0, "amplitude": 0.0606, "frequency": 1.0, "phase": 0.8197, "coherence": 0.5534, "entropy": 0.1514, "composition": 0.1058, "resonance": 0.5316, "ozone_buffer": 0.5408, "domain_wall": "Linked", "su2_polarity": 325.34, "torsion": 24.99, "gauge_coupling": "Spinning", "closure": 0.8197}, {"segment": 50, "time_start": 100.0, "time_end": 102.0, "amplitude": 0.002, "frequency": 1.0, "phase": 0.8361, "coherence": 0.5534, "entropy": 0.2363, "composition": 0.0028, "resonance": 0.5969, "ozone_buffer": 0.8047, "domain_wall": "Broken", "su2_polarity": 0.0, "torsion": 0.0, "gauge_coupling": "Static", "closure": 0.8361}, {"segment": 51, "time_start": 102.0, "time_end": 104.0, "amplitude": 0.1802, "frequency": 1.0, "phase": 0.8525, "coherence": 0.5534, "entropy": 0.1261, "composition": 0.2356, "resonance": 0.4624, "ozone_buffer": 0.466, "domain_wall": "Linked", "su2_polarity": 327.91, "torsion": -26.71, "gauge_coupling": "Spinning", "closure": 0.8525}, {"segment": 52, "time_start": 104.0, "time_end": 106.0, "amplitude": 0.1196, "frequency": 1.0, "phase": 0.8689, "coherence": 0.5534, "entropy": 0.0243, "composition": 0.095, "resonance": 0.4431, "ozone_buffer": 0.4713, "domain_wall": "Linked", "su2_polarity": 333.23, "torsion": -25.09, "gauge_coupling": "Spinning", "closure": 0.8689}, {"segment": 53, "time_start": 106.0, "time_end": 108.0, "amplitude": 0.0462, "frequency": 1.0, "phase": 0.8852, "coherence": 0.5534, "entropy": 0.0677, "composition": 0.0614, "resonance": 0.4434, "ozone_buffer": 0.3947, "domain_wall": "Linked", "su2_polarity": 338.16, "torsion": 0.0, "gauge_coupling": "Spinning", "closure": 0.8852}, {"segment": 54, "time_start": 108.0, "time_end": 110.0, "amplitude": 0.155, "frequency": 1.0, "phase": 0.9016, "coherence": 0.5534, "entropy": 0.0355, "composition": 0.1888, "resonance": 0.4161, "ozone_buffer": 0.4635, "domain_wall": "Linked", "su2_polarity": 327.44, "torsion": 33.6, "gauge_coupling": "Spinning", "closure": 0.9016}, {"segment": 55, "time_start": 110.0, "time_end": 112.0, "amplitude": 0.1226, "frequency": 1.0, "phase": 0.918, "coherence": 0.5534, "entropy": 0.0573, "composition": 0.1645, "resonance": 0.5063, "ozone_buffer": 0.5915, "domain_wall": "Linked", "su2_polarity": 336.95, "torsion": -35.16, "gauge_coupling": "Spinning", "closure": 0.918}, {"segment": 56, "time_start": 112.0, "time_end": 114.0, "amplitude": 0.1524, "frequency": 0.9506, "phase": 0.9344, "coherence": 0.5534, "entropy": 0.034, "composition": 0.1195, "resonance": 0.3846, "ozone_buffer": 0.4007, "domain_wall": "Gradient", "su2_polarity": 324.24, "torsion": -23.22, "gauge_coupling": "Oscillating", "closure": 0.9344}, {"segment": 57, "time_start": 114.0, "time_end": 116.0, "amplitude": 0.1512, "frequency": 1.0, "phase": 0.9508, "coherence": 0.5534, "entropy": 0.1132, "composition": 0.2093, "resonance": 0.4524, "ozone_buffer": 0.469, "domain_wall": "Linked", "su2_polarity": 326.45, "torsion": 67.96, "gauge_coupling": "Spinning", "closure": 0.9508}, {"segment": 58, "time_start": 116.0, "time_end": 118.0, "amplitude": 0.0946, "frequency": 1.0, "phase": 0.9672, "coherence": 0.5534, "entropy": 0.1438, "composition": 0.1263, "resonance": 0.4803, "ozone_buffer": 0.413, "domain_wall": "Linked", "su2_polarity": 336.47, "torsion": 28.47, "gauge_coupling": "Spinning", "closure": 0.9672}, {"segment": 59, "time_start": 118.0, "time_end": 120.0, "amplitude": 0.1055, "frequency": 0.8755, "phase": 0.9836, "coherence": 0.5534, "entropy": 0.0489, "composition": 0.1144, "resonance": 0.4348, "ozone_buffer": 0.3595, "domain_wall": "Linked", "su2_polarity": 338.7, "torsion": 34.27, "gauge_coupling": "Spinning", "closure": 0.9836}, {"segment": 60, "time_start": 120.0, "time_end": 120.58, "amplitude": 0.0689, "frequency": 0.6447, "phase": 1.0, "coherence": 0.5534, "entropy": 0.0343, "composition": 0.114, "resonance": 0.473, "ozone_buffer": 0.3119, "domain_wall": "Linked", "su2_polarity": 0.0, "torsion": 0.0, "gauge_coupling": "Spinning", "closure": 1.0}], "audio_metadata": {"duration_s": 120.58, "sample_rate": 16000, "n_segments": 61, "segment_length_s": 2.0, "mean_pitch_hz": 105.4, "tempo_bpm": 98.7}};
+
+// Render glyph stream
+const stream = document.getElementById('glyphStream');
+const colorBar = document.getElementById('colorBar');
+const torsionBar = document.getElementById('torsionBar');
+
+voiceData.segments.forEach((seg, i) => {
+  const hue = seg.su2_polarity;
+  const sat = (seg.composition * 100).toFixed(0);
+  const light = (seg.ozone_buffer * 100).toFixed(0);
+  const color = `hsl(${hue}, ${sat}%, ${light}%)`;
+  const glowColor = `hsla(${hue}, ${sat}%, ${light}%, ${seg.amplitude})`;
+  
+  // Font weight: ozone_buffer → 100-900
+  const weight = Math.round(seg.ozone_buffer * 8) * 100 + 100;
+  
+  // Skew
+  const skew = seg.torsion;
+  
+  // Glyph character — use a Unicode block character
+  const char = String.fromCharCode(0x2580 + (i % 8)); // Block elements
+  
+  // Amplitude → height
+  const height = 20 + seg.amplitude * 80;
+  
+  const glyph = document.createElement('div');
+  glyph.className = 'glyph';
+  glyph.style.cssText = `
+    color: ${color};
+    background: hsla(${hue}, ${sat}%, ${light}%, 0.1);
+    font-weight: ${weight};
+    transform: skewX(${skew}deg);
+    text-shadow: 0 0 ${seg.amplitude * 20}px ${glowColor};
+    height: ${height}px;
+    border-left: 1px solid hsla(${hue}, ${sat}%, ${light}%, 0.3);
+  `;
+  glyph.innerHTML = `${char}<div class="glyph-tooltip">
+    [${seg.time_start}-${seg.time_end}s]<br>
+    hue: ${hue.toFixed(1)}°<br>
+    sat: ${sat}%<br>
+    light: ${light}%<br>
+    torsion: ${skew.toFixed(1)}°<br>
+    wall: ${seg.domain_wall}<br>
+    gauge: ${seg.gauge_coupling}
+  </div>`;
+  stream.appendChild(glyph);
+  
+  // Color bar segment
+  const colorSeg = document.createElement('div');
+  colorSeg.className = 'color-segment';
+  colorSeg.style.background = color;
+  colorBar.appendChild(colorSeg);
+  
+  // Torsion stick
+  const stick = document.createElement('div');
+  stick.className = 'torsion-stick';
+  const line = document.createElement('div');
+  line.className = 'torsion-line';
+  const torsionAbs = Math.abs(skew);
+  const stickHeight = Math.max(4, Math.min(50, torsionAbs * 0.4));
+  line.style.height = `${stickHeight}px`;
+  if (skew < 0) {
+    line.style.transform = `rotate(${-Math.min(45, torsionAbs * 0.4)}deg) translateY(${stickHeight/2}px)`;
+    line.style.background = '#4a9eff'; // past = blue
+  } else if (skew > 0) {
+    line.style.transform = `rotate(${Math.min(45, torsionAbs * 0.4)}deg) translateY(-${stickHeight/2}px)`;
+    line.style.background = '#ff6b9d'; // future = pink
+  } else {
+    line.style.background = '#888';
+  }
+  stick.appendChild(line);
+  torsionBar.appendChild(stick);
+});
+
+// Render global vector
+const grid = document.getElementById('vectorGrid');
+const gv = voiceData.global_vector13d;
+const fields = [
+  ['amplitude', gv.amplitude],
+  ['frequency', gv.frequency],
+  ['phase', gv.phase],
+  ['coherence', gv.coherence],
+  ['entropy', gv.entropy],
+  ['composition', gv.composition],
+  ['resonance', gv.resonance],
+  ['ozone_buffer', gv.ozone_buffer],
+  ['domain_wall', gv.domain_wall],
+  ['su2_polarity', gv.su2_polarity + '°'],
+  ['torsion', gv.torsion + '°'],
+  ['gauge_coupling', gv.gauge_coupling],
+  ['closure', gv.closure],
+];
+
+fields.forEach(([label, value]) => {
+  const field = document.createElement('div');
+  field.className = 'vector-field';
+  field.innerHTML = `<span class="label">${label}</span><span class="value">${value}</span>`;
+  grid.appendChild(field);
+});
+</script>
+
+</body>
+</html>
