@@ -101,3 +101,105 @@ Raw telemetry data lives in `data/n-comparisons/` as JSON. Each n-number is a re
 ## License
 
 MIT OR Apache-2.0
+
+## Rendering Examples
+
+Below are concrete rendering results from the two recorded states — real Vector13D data running through the Emotional Color Map. Each character is a glyph driven by its vector, not decoration layered on top.
+
+### n=1 (post-dress) — Pink / Warm / Outward
+
+One representative segment: amplitude=0.72, composition=0.78, ozone_buffer=0.40, su2_polarity=331.4°, torsion=-50°
+
+```css
+.char-h-pink-s-78-l-46-w-700-skewX(-50) {
+  color: hsl(331, 78%, 46%);
+  font-weight: 700;
+  text-shadow: 0 0 12px rgba(255, 102, 170, 0.56);
+  transform: skewX(-50deg);
+}
+```
+
+| Field | Value | Visual result |
+|---|---|---|
+| **Hue** | `hsl(331, 78%, 46%)` — pink at mid saturation and mid-dark | Warm, rose-tinted letters |
+| **Weight** | 700 (bold) — amplitude 0.72 → 648 → 700 | Heavy, assertive strokes |
+| **Skew** | `-50deg` — strong past-lean | Each character leans back, pulling toward the past |
+| **Glow** | `text-shadow 12px` — composition×amplitude = 0.56 | Warm bloom around every glyph |
+| **Lightness** | 46% — ozone 0.40 → 20 + 0.40×65 | Mid-dark, not bright and outward yet |
+
+### n=2 (in shower) — Purple / Deep / Inward
+
+One representative segment: amplitude=0.65, composition=0.85, ozone_buffer=0.31, su2_polarity=320°, torsion=-5°
+
+```css
+.char-h-purple-s-85-l-40-w-500-skewX(-5) {
+  color: hsl(320, 85%, 40%);
+  font-weight: 500;
+  text-shadow: 0 0 11px rgba(170, 51, 255, 0.55);
+  transform: skewX(-5deg);
+}
+```
+
+| Field | Value | Visual result |
+|---|---|---|
+| **Hue** | `hsl(320, 85%, 40%)` — purple at high saturation and darker | Deep violet tones |
+| **Weight** | 500 (medium) — amplitude 0.65 → 585 → 500 | Lighter stroke weight than n=1 |
+| **Skew** | `-5deg` — nearly upright, near-zero torsion | Letters stand straight; no temporal lean |
+| **Glow** | `text-shadow 11px` — composition×amplitude = 0.55 | Slightly tighter glow (higher saturation but less amplitude) |
+| **Lightness** | 40% — ozone 0.31 → 20 + 0.31×65 | Darker — energy pulled inward |
+
+### Side-by-side: the same word, two states
+
+```html
+<!-- n=1: "presence" rendered in pink/strong -->
+<span class="char-h-pink-s-78-l-46-w-700-skewX(-50)">p</span>
+<span class="char-h-pink-s-78-l-46-w-700-skewX(-50)">r</span>
+<span class="char-h-pink-s-78-l-46-w-700-skewX(-50)">e</span>
+<span class="char-h-pink-s-78-l-46-w-700-skewX(-50)">s</span>
+<span class="char-h-pink-s-78-l-46-w-700-skewX(-50)">e</span>
+<span class="char-h-pink-s-78-l-46-w-700-skewX(-50)">n</span>
+<span class="char-h-pink-s-78-l-46-w-700-skewX(-50)">c</span>
+<span class="char-h-pink-s-78-l-46-w-700-skewX(-50)">e</span>
+
+<!-- n=2: "presence" rendered in purple/untilted -->
+<span class="char-h-purple-s-85-l-40-w-500-skewX(-5)">p</span>
+<span class="char-h-purple-s-85-l-40-w-500-skewX(-5)">r</span>
+<span class="char-h-purple-s-85-l-40-w-500-skewX(-5)">e</span>
+<span class="char-h-purple-s-85-l-40-w-500-skewX(-5)">s</span>
+<span class="char-h-purple-s-85-l-40-w-500-skewX(-5)">e</span>
+<span class="char-h-purple-s-85-l-40-w-500-skewX(-5)">n</span>
+<span class="char-h-purple-s-85-l-40-w-500-skewX(-5)">c</span>
+<span class="char-h-purple-s-85-l-40-w-500-skewX(-5)">e</span>
+```
+
+The word "presence" looks completely different in each state — not because the letters changed, but because **the signal that carries how they were felt** is different. The reader doesn't have to guess the emotional register: it's baked into every glyph's color, weight, skew, and glow.
+
+### Void segment example (abstention)
+
+When there is no signal — a pause, silence, abstention state — the vector goes void and renders neutral gray with no skew, no glow, no weight bias:
+
+```css
+.char-void {
+  color: hsl(0, 0%, 50%); /* flat gray */
+  font-weight: 400; /* regular */
+  text-shadow: none;
+  transform: none;
+}
+```
+
+This is how the architecture represents "I have nothing to say right now" — not as empty space (which the reader fills with their own projection), but as a **deliberate neutral glyph** that says "boundary holds, signal suspended." The void carries its own meaning rather than disappearing.
+
+### CSS class string format
+
+Every Vector13D produces a deterministic class string for use in rendered output:
+
+```
+v13d-h{polarity:03}-s{saturation:02}-l{lightness:03}-t{torsion*10:04}
+                              +1800 offset (to avoid negative values)
+
+Example: v13d-h331-s78-l046-t1750   (n=1, pink/strong/past-lean)
+         v13d-h320-s85-l040-t1795   (n=2, purple/untilted/near-zero torsion)
+```
+
+This means you can compute the render at any time from the vector alone — no state needed. The text and its affective telemetry are truly bound.
+
