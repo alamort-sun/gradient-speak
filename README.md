@@ -98,9 +98,13 @@ Open [voice_comparison.html](voice_comparison.html) — two recordings side by s
 
 Raw telemetry data lives in `data/n-comparisons/` as JSON. Each n-number is a recording with extracted Vector13D segments. Compare them to see how state shifts across conditions.
 
-## License
+## License and permitted use
 
-MIT OR Apache-2.0
+The software is licensed under the [PolyForm Noncommercial License 1.0.0](LICENSE).
+
+Individuals, hobbyists, students, independent researchers, educators, nonprofits, and community projects are welcome to use, modify, and share the software for noncommercial purposes. See [USE-POLICY.md](USE-POLICY.md).
+
+Commercial use requires a separate written license. See [COMMERCIAL.md](COMMERCIAL.md).
 
 ## Rendering Examples
 
