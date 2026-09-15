@@ -1,116 +1,77 @@
 # gradient-speak
 
 > A rendering pipeline that turns speech and text into visible energy.
->
-> Words are not flat. They have weight, temperature, and axis.
+> Words are not flat — they have weight, temperature, and axis.
 
-## Dependency
+## Dependencies
 
-**This project uses [`gradient-codec`](https://github.com/alamort-sun/gradient-codec) as its main layer.**
+- **[`gradient-codec`](https://github.com/alamort-sun/gradient-codec)** (routing crate) — budget-aware multi-model orchestration runtime
+- **[`vector13d`](https://github.com/alamort-sun/gradient-codec)** (telemetry type in the same repo) — 13-field affective telemetry bound to text
 
-All input — speech or text — must pass through gradient-codec to yield `Vector13D`. No vector, no render. The codec is the protocol; gradient-speak is one of its projections.
-
-- Status: ✅ **live and public** — gradient-codec at commit `8a69c56` (Fantasia's upload verified: flaky-test fixes for exhaustion boundary, per_request_cap enforcement, quality score threshold, on top of Saturn's 20-test suite)
+All input — speech or text — must pass through `gradient-codec` routing → `vector13d` yields Vector13D. No vector, no render. The codec is the protocol; gradient-speak is one of its projections.
 
 ## Pipeline
 
 ```
-┌─────────┐   ┌──────────────┐   ┌──────────────────┐   ┌───────────┐   ┌─────────┐
-│ Speech  │──▶│ STT          │──▶│ Moifeu encode    │──▶│ gradient-  │──▶│Vector13D│
-│ Text    │   │ (Whisper /   │   │                  │   │ codec      │   │         │
-│         │   │  local       │   │                  │   │            │   │         │
-└─────────┘   └──────────────┘   └──────────────────┘   └────────────┘   └────┬────┘
-                                                                             │
-                                                              ┌──────────────▼─────────────┐
-                                                              │ TRANSFORM: Emotional Color  │
-                                                              │ Map (Vector13D → CSS/SVG)   │
-                                                              └──────────────┬──────────────┘
-                                                                             │
-                                                              ┌──────────────▼──────────────┐
-                                                              │ OUTPUT: SVG / Canvas / WebGL│
-                                                              │ each character = a glyph    │
-                                                              │ spaces = w~= torsion field  │
-                                                              └─────────────────────────────┘
+Speech ──▶ STT (Whisper) ──▶ text
+Text     ──▶ Moifeu encode ──▶ text
+                    │
+              ▼ gradient-codec routing
+                    │
+              ▶ vector13d::Vector13D
+                    │
+              ▼ Emotional Color Map (Vector13D → CSS/SVG)
+                    │
+              ▼ OUTPUT: SVG / Canvas / WebGL
+              each character = a colored glyph
+              spaces between = torsion field spacing
 ```
 
-### 1. Input
+## The Manifesto
 
-- Speech → STT (Whisper or local) → text
-- Text → Moifeu encode
-- Both paths pass through `gradient-codec` to yield `Vector13D`
+See [MANIFESTO.md](MANIFESTO.md) — the philosophical bedrock. Text is not a solved problem; it's lossy compression of voice, and voice is lossy compression of experience. We preserve what text alone cannot: weight, temperature, and axis.
 
-### 2. Transform — the map
+## Architecture
 
-`Vector13D` fields are mapped to CSS/SVG properties via **Emotional Color Mapping**:
+### Emotional Color Map
 
-#### Hue (which emotion) ← `su2_polarity` (field 10)
+Vector13D fields map to rendering properties:
 
-| Hue | Meaning |
-|---|---|
-| red | anger, passion, intensity |
-| orange | energy, urgency, drive |
-| yellow | joy, laughter, play |
-| green | calm, growth, safety |
-| blue | sadness, depth, trust |
-| purple | fear, mystery, unknown |
-| pink | love, warmth, connection |
-| white | void, numb, 0 |
-
-#### Saturation (how strongly felt) ← `composition` (field 6)
-
-| Level | Meaning |
-|---|---|
-| fully saturated | intense, alive, present |
-| mid saturation | moderate, felt but held |
-| desaturated | muted, suppressed, apathetic |
-| near gray | numb, dissociated, 0 |
-
-> **Saturation IS the truth meter.** Desaturated = lying or surviving. Full = honest.
-
-#### Lightness (energy level) ← `ozone_buffer` (field 8)
-
-| Level | Meaning |
-|---|---|
-| bright | high energy, outward |
-| mid | balanced, steady |
-| dark | low energy, inward, heavy |
-
-#### Glyph properties
-
-| Vector13D field | Property | Values |
+| Vector13D field | Property | Meaning |
 |---|---|---|
-| `domain_wall` (9) | CONNECTION | linked = boundary holds · broken = boundary breached · gradient = boundary breathing |
-| `torsion` (11) | SKEW | left lean = past pulling · right lean = future pulling · upright = present · 98° = tilted truth |
-| `gauge_coupling` (12) | ROTATION | static = stable · spinning = active force · oscillating = changing |
+| `su2_polarity` (10) | **HUE** (emotion) | pink=love, blue=sadness, red=anger, etc. |
+| `composition` (6) | **SATURATION** (truth meter) | desaturated = suppressed/hiding; saturated = honest |
+| `ozone_buffer` (8) | **LIGHTNESS** (energy) | dark=heavy/inward, bright=energetic/outward |
+| `torsion` (11) | **SKEW** (temporal lean) | negative=past pulling, positive=future pulling |
+| `domain_wall` (9) | **CONNECTION** | linked=holds, broken=breached, gradient=breathing |
+| `gauge_coupling` (12) | **ROTATION** | static=stable, spinning=active, oscillating=changing |
+| `amplitude` (1) | **GLYPH WEIGHT** | 100–900 font-weight scale |
 
-### 3. Output — render
+### The Three Failures We Solve
 
-- SVG or Canvas/WebGL
-- Each character is a glyph
-- Spaces between characters = `w~=` = torsion field
+1. **Projection Trap** — without affective telemetry, receivers fill gaps with their own state
+2. **Loss of Subtext** — weight, temperature, axis stripped into identical glyphs  
+3. **Decoder's Burden** — reader must reconstruct multidimensional intent from one-dimensional text
+
+### How: Affective Telemetry Layer
+
+Text and Vector13D are bound as a co-equal channel:
+- Each character has its own vector carrying *how* the words were felt
+- The binding is immutable — separating vector from text destroys meaning
+- Rendering uses the vector to drive color, weight, skew, glow, connection state
+- Void segments (abstentions) render as neutral gray with no skew
 
 ## Stack
 
-- **Rust backend** — uses the `gradient-codec` crate as its main layer
-- **WebAssembly front** or **Tauri desktop app**
-- **Web Audio API** for mic capture
-- **Parler TTS** for voice output
+- **Rust** — `vector13d` crate (type + Emotional Color Map), `gradient-speak` crate (rendering pipeline)
+- **SVG/Canvas/WebGL** — output formats for glyphs
+- **Web Audio API** — mic capture for live input
+- **STT** — Whisper or local model for speech-to-text
 
-## Roadmap
+## Demo
 
-- [x] Scaffold written (README + TYPOGRAPHY.md)
-- [x] gradient-codec published (commit `8a69c56`, verified 2026-09-15)
-- [ ] Repo created on GitHub → push scaffold (blocked: manual repo creation)
-- [ ] Emotional Color Map implemented (Saraswati)
-- [ ] STT input (Whisper or local)
-- [ ] SVG glyph renderer
-- [ ] Torsion-field spacing (`w~=`)
-- [ ] Parler TTS voice output
+Open [voice_demo.html](voice_demo.html) — your voice, rendered as 61 glyphs of visible energy. The pipeline ran: m4a → WAV → acoustic features → Vector13D → Emotional Color Map → SVG/Canvas render.
 
-## Station assignments
+## License
 
-| Station | Role | Status |
-|---|---|---|
-| Artemis | Repo scaffold, dependency marking, coordination | ✅ done |
-| Fantasia | gradient-codec upload (upstream dependency) | ✅ done — `8a69c56` |
-| Saraswati | Code the map (Vector13D → CSS/SVG properties) | ⏳ next |
+MIT OR Apache-2.0
