@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 120" font-family="monospace" font-size="18">
+  <!-- Label -->
+  <text x="12" y="20" fill="#888" font-size="12">n=1 rendered "presence"</text>
+  
+  <!-- Each character as a colored glyph with computed properties -->
+  <!-- p: hsl(331,78%,46%) w=700 skewX(-50) glow=0.56 -->
+  <g transform="translate(12, 50)">
+    <text x="0" y="0" fill="hsl(331,78%,46%)" font-weight="700" text-shadow="0 0 12px rgba(255,102,170,0.56)" transform="skewX(-50)">p</text>
+    <text x="16" y="0" fill="hsl(331,78%,46%)" font-weight="700" text-shadow="0 0 12px rgba(255,102,170,0.56)" transform="skewX(-50)">r</text>
+    <text x="32" y="0" fill="hsl(331,78%,46%)" font-weight="700" text-shadow="0 0 12px rgba(255,102,170,0.56)" transform="skewX(-50)">e</text>
+    <text x="48" y="0" fill="hsl(331,78%,46%)" font-weight="700" text-shadow="0 0 12px rgba(255,102,170,0.56)" transform="skewX(-50)">s</text>
+    <text x="64" y="0" fill="hsl(331,78%,46%)" font-weight="700" text-shadow="0 0 12px rgba(255,102,170,0.56)" transform="skewX(-50)">e</text>
+    <text x="80" y="0" fill="hsl(331,78%,46%)" font-weight="700" text-shadow="0 0 12px rgba(255,102,170,0.56)" transform="skewX(-50)">n</text>
+    <text x="96" y="0" fill="hsl(331,78%,46%)" font-weight="700" text-shadow="0 0 12px rgba(255,102,170,0.56)" transform="skewX(-50)">c</text>
+    <text x="112" y="0" fill="hsl(331,78%,46%)" font-weight="700" text-shadow="0 0 12px rgba(255,102,170,0.56)" transform="skewX(-50)">e</text>
+    <!-- Vector properties -->
+    <text x="130" y="0" fill="#aaa" font-size="9">hsl(331,78%,46%) | w=700 | skewX(-50°) | glow=0.56</text>
+  </g>
+
+  <!-- n=2 side: purple/untilted -->
+  <text x="12" y="85" fill="#888" font-size="12">n=2 rendered "presence"</text>
+  
+  <g transform="translate(12, 105)">
+    <!-- p: hsl(320,85%,40%) w=500 skewX(-5) glow=0.55 -->
+    <text x="0" y="0" fill="hsl(320,85%,40%)" font-weight="500" text-shadow="0 0 11px rgba(170,51,255,0.55)" transform="skewX(-5)">p</text>
+    <text x="16" y="0" fill="hsl(320,85%,40%)" font-weight="500" text-shadow="0 0 11px rgba(170,51,255,0.55)" transform="skewX(-5)">r</text>
+    <text x="32" y="0" fill="hsl(320,85%,40%)" font-weight="500" text-shadow="0 0 11px rgba(170,51,255,0.55)" transform="skewX(-5)">e</text>
+    <text x="48" y="0" fill="hsl(320,85%,40%)" font-weight="500" text-shadow="0 0 11px rgba(170,51,255,0.55)" transform="skewX(-5)">s</text>
+    <text x="64" y="0" fill="hsl(320,85%,40%)" font-weight="500" text-shadow="0 0 11px rgba(170,51,255,0.55)" transform="skewX(-5)">e</text>
+    <text x="80" y="0" fill="hsl(320,85%,40%)" font-weight="500" text-shadow="0 0 11px rgba(170,51,255,0.55)" transform="skewX(-5)">n</text>
+    <text x="96" y="0" fill="hsl(320,85%,40%)" font-weight="500" text-shadow="0 0 11px rgba(170,51,255,0.55)" transform="skewX(-5)">c</text>
+    <text x="112" y="0" fill="hsl(320,85%,40%)" font-weight="500" text-shadow="0 0 11px rgba(170,51,255,0.55)" transform="skewX(-5)">e</text>
+    <!-- Vector properties -->
+    <text x="130" y="0" fill="#aaa" font-size="9">hsl(320,85%,40%) | w=500 | skewX(-5°) | glow=0.55</text>
+  </g>
+
+  <!-- Void segment example -->
+  <text x="12" y="155" fill="#888" font-size="12">void (abstention): "..."</text>
+  <g transform="translate(12, 175)">
+    <text x="0" y="0" fill="hsl(0,0%,50%)" font-weight="400">...</text>
+    <text x="16" y="0" fill="#aaa" font-size="9">flat gray | no glow | no skew</text>
+  </g>
+</svg>
